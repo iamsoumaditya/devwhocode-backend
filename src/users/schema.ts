@@ -14,6 +14,7 @@ export const users = pgTable('users', {
     .references(() => departments.id, { onDelete: 'set null' }),
   section: integer('section').notNull(),
   batch: batchEnum('batch').notNull(),
+  score: integer('score').default(0).notNull()
 });
 
 export const departments = pgTable('departments', {

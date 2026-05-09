@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { DATABASE_CONNECTION } from './database-connection';
 import * as userSchema from '../users/schema';
 import * as labAssiantSchema from '../lab_assistant/schema';
+import * as problemSchema from '../problems/schema'
 
 @Module({
   providers: [
@@ -20,6 +21,7 @@ import * as labAssiantSchema from '../lab_assistant/schema';
           schema: {
             ...userSchema,
             ...labAssiantSchema,
+            ...problemSchema,
           },
         });
       },
