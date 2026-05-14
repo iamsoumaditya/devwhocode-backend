@@ -33,7 +33,7 @@ export const testcases = pgTable('testcases', {
 })
 
 export const problemsTestcases = pgTable('problem_testcases', {
-    problemDetailsId: uuid('problems_details_id').references(()=>problemDetails.id,{onDelete:"cascade"}).notNull(),
+    problemDetailsId: uuid('problem_detail_id').references(()=>problemDetails.id,{onDelete:"cascade"}).notNull(),
     testcaseId:uuid('testcase_id').references(()=>testcases.id,{onDelete:"cascade"}).notNull()
 },
     (table) => ({
@@ -44,28 +44,22 @@ export const problemsTestcases = pgTable('problem_testcases', {
 )
 
 
-const problemRelations = relations(problems, ({ one,many }) => ({
+export const problemRelations = relations(problems, ({ one }) => ({
   problemDetails: one(problemDetails, {
     fields: [problems.problemDetailsId],
     references: [problemDetails.id],
   }),
-
-  problemTestcases: many(problemsTestcases),
 }));
 
-const problemDetailsRelation = relations(problemDetails, ({ one,many }) => ({
-    problem: one(problems, {
-        fields: [problemDetails.id],
-        references: [problems.problemDetailsId]
-    }),
+export const problemDetailsRelation = relations(problemDetails, ({ many }) => ({
     problemTestcases:many(problemsTestcases)
 }))
 
-const testcasesRelation = relations(testcases, ({ many }) => ({
+export const testcasesRelation = relations(testcases, ({ many }) => ({
   problemTestcases: many(problemsTestcases),
 }));
 
-const problemsTestcasesRelations = relations(problemsTestcases, ({ one }) => ({
+export const problemsTestcasesRelations = relations(problemsTestcases, ({ one }) => ({
     problemDetails: one(problemDetails, {
         fields: [problemsTestcases.problemDetailsId],
         references:[problemDetails.id]
