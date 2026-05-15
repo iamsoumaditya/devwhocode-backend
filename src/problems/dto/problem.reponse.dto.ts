@@ -50,16 +50,11 @@ export class ProblemResponseDto {
 
 export class ProblemWithDetailsResponseDto extends ProblemResponseDto {
   @Expose()
+  @Type(() => ProblemDetailsResponseDto)
   problemDetails: ProblemDetailsResponseDto;
 }
 
-export class ProblemWithTestcasesDto extends ProblemResponseDto {
-  @Expose()
-  @Type(() => TestcaseResponseDto)
-  testcases: TestcaseResponseDto[];
-}
-
-export class ProblemDetailsWithTestcasesDto extends ProblemDetailsResponseDto {
+export class ProblemDetailsWithTestcasesDto extends ProblemWithDetailsResponseDto {
   @Expose()
   @Type(() => TestcaseResponseDto)
   testcases: TestcaseResponseDto[];

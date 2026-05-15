@@ -9,7 +9,6 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { problemsType } from '../schema';
 
 export type ProblemType = 'Easy' | 'Medium' | 'Hard';
 
@@ -108,4 +107,3 @@ export class UpdateProblemDto {
   @IsOptional()
   testcases?: TestcaseDto[];
 }
-

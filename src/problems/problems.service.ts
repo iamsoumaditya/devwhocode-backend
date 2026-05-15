@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as problemSchema from './schema';
@@ -9,6 +14,8 @@ import {
   ProblemDetailsResponseDto,
   ProblemDetailsWithTestcasesDto,
   UpdateProblemDto,
+  TestcaseDto,
+  TestcaseResponseDto,
 } from './dto';
 import { plainToInstance } from 'class-transformer';
 import { eq, inArray } from 'drizzle-orm';
@@ -94,10 +101,10 @@ export class ProblemsService {
       problemDetails: row.problemDetails
         ? {
             ...row.problemDetails,
-            testcases: row.problemDetails.problemTestcases.map(
-              (pt) => pt.testcase,
-            ),
           }
+        : null,
+      testcases: row.problemDetails
+        ? row.problemDetails.problemTestcases.map((pt) => pt.testcase)
         : null,
     };
 
@@ -106,7 +113,10 @@ export class ProblemsService {
     });
   }
 
-  async update(id: string, dto: UpdateProblemDto): Promise<ProblemDetailsWithTestcasesDto> {
+  async update(
+    id: string,
+    dto: UpdateProblemDto,
+  ): Promise<ProblemDetailsWithTestcasesDto> {
     const existing = await this.db.query.problems.findFirst({
       where: eq(problemSchema.problems.id, id),
     });
@@ -149,7 +159,7 @@ export class ProblemsService {
         (v) => v !== undefined,
       );
 
-      let updatedDetail:ProblemDetailsResponseDto|undefined;
+      let updatedDetail: ProblemDetailsResponseDto | undefined;
 
       if (hasDetailFields) {
         if (!existing.problemDetailsId)
@@ -173,7 +183,6 @@ export class ProblemsService {
           where: eq(problemSchema.problemDetails.id, existing.problemDetailsId),
         });
       }
-
 
       let newTestcases: (typeof problemSchema.testcases.$inferSelect)[] = [];
 
@@ -213,9 +222,8 @@ export class ProblemsService {
         ProblemDetailsWithTestcasesDto,
         {
           ...updatedProblem,
-          problemDetails: updatedDetail
-            ? { ...updatedDetail, testcases: allTestcases }
-            : null,
+          problemDetails: updatedDetail ? { ...updatedDetail } : null,
+          testcases: allTestcases,
         },
         { excludeExtraneousValues: true },
       );
@@ -238,8 +246,8 @@ export class ProblemsService {
             problemSchema.problemsTestcases.problemDetailsId,
             existing.problemDetailsId,
           ),
-      );
-      
+        );
+
       await this.db
         .delete(problemSchema.problems)
         .where(eq(problemSchema.problems.id, id));
@@ -247,7 +255,7 @@ export class ProblemsService {
       await this.db
         .delete(problemSchema.problemDetails)
         .where(eq(problemSchema.problemDetails.id, existing.problemDetailsId));
-      
+
       // Clean up orphaned testcase rows (no cascade from problem_testcases → testcases)
       if (linkedTcs.length) {
         await this.db.delete(problemSchema.testcases).where(
@@ -262,5 +270,44 @@ export class ProblemsService {
         .delete(problemSchema.problems)
         .where(eq(problemSchema.problems.id, id));
     }
+  }
+
+  async updateTestcase(
+    id: string,
+    dto: TestcaseDto,
+  ): Promise<TestcaseResponseDto> {
+    const existing = await this.db.query.testcases.findFirst({
+      where: eq(problemSchema.testcases.id, id),
+    });
+
+    if (!existing) throw new NotFoundException(`Testcase ${id} not found`);
+
+    const [testcase] = await this.db
+      .update(problemSchema.testcases)
+      .set(dto)
+      .where(eq(problemSchema.testcases.id, id))
+      .returning();
+
+    return plainToInstance(TestcaseResponseDto, testcase, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async removeTestcases(ids: string[]): Promise<{deleted:number}> {
+    const existing = await this.db.query.testcases.findMany({
+      where: inArray(problemSchema.testcases.id, ids),
+    });
+
+    if (existing.length !== ids.length) {
+      const foundIds = existing.map((tc) => tc.id);
+      const missing = ids.filter((id) => !foundIds.includes(id));
+      throw new NotFoundException(`Testcases not found: ${missing.join(', ')}`);
+    }
+
+    await this.db
+      .delete(problemSchema.testcases)
+      .where(inArray(problemSchema.testcases.id, ids));
+    
+    return { deleted: ids.length };
   }
 }
