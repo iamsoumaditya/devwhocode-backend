@@ -29,6 +29,13 @@
       "when": 1778774439013,
       "tag": "0003_complete_demogoblin",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1779020687012,
+      "tag": "0004_curious_black_tarantula",
+      "breakpoints": true
     }
   ]
 }

@@ -24,16 +24,10 @@ export const labs = pgTable('labs', {
   name: text('name').notNull(),
 });
 
+
 export const labAssistantsRelation = relations(labAssistants, ({ one }) => ({
   lab: one(labs, {
     fields: [labAssistants.labId],
     references: [labs.id],
-  }),
-}));
-
-export const labRelations = relations(labs, ({ one }) => ({
-  labAssistant: one(labAssistants, {
-    fields: [labs.id],
-    references: [labAssistants.labId],
   }),
 }));

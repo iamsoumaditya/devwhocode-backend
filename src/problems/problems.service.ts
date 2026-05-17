@@ -7,6 +7,7 @@ import {
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as problemSchema from './schema';
+import * as labSchema from '../lab_assistant/schema';
 import {
   CreateProblemDto,
   ProblemWithDetailsResponseDto,
@@ -16,15 +17,28 @@ import {
   UpdateProblemDto,
   TestcaseDto,
   TestcaseResponseDto,
+  AssignmentDto,
+  AssignmentResponseDto,
+  AssignmentToLabResponseDto,
+  AssignmentToLabDto,
+  ProblemToAssignmentDto,
+  ReorderProblemsDto,
+  ProblemToAssignmentResponseDto,
+  AssignmentProblemResponseDto,
+  AssignmentFromLabResponseDto,
+  ActivateAssignmentDto,
+  ActivateAssignmentResponseDto,
 } from './dto';
 import { plainToInstance } from 'class-transformer';
-import { eq, inArray } from 'drizzle-orm';
+import { and, asc, eq, inArray } from 'drizzle-orm';
 
 @Injectable()
 export class ProblemsService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private readonly db: NodePgDatabase<typeof problemSchema>,
+    private readonly db: NodePgDatabase<
+      typeof problemSchema & typeof labSchema
+    >,
   ) {}
 
   async create(dto: CreateProblemDto): Promise<ProblemWithDetailsResponseDto> {
@@ -45,7 +59,6 @@ export class ProblemsService {
         .values({
           name: dto.name,
           slug,
-          serialNo: dto.serialNo,
           type: dto.type,
           points: dto.points,
           problemDetailsId: detail.id,
@@ -71,9 +84,7 @@ export class ProblemsService {
   }
 
   async findAll(): Promise<ProblemResponseDto[]> {
-    const rows = await this.db.query.problems.findMany({
-      orderBy: (p, { asc }) => asc(p.serialNo),
-    });
+    const rows = await this.db.query.problems.findMany();
 
     return plainToInstance(ProblemResponseDto, rows, {
       excludeExtraneousValues: true,
@@ -293,7 +304,7 @@ export class ProblemsService {
     });
   }
 
-  async removeTestcases(ids: string[]): Promise<{deleted:number}> {
+  async removeTestcases(ids: string[]): Promise<{ deleted: number }> {
     const existing = await this.db.query.testcases.findMany({
       where: inArray(problemSchema.testcases.id, ids),
     });
@@ -307,7 +318,314 @@ export class ProblemsService {
     await this.db
       .delete(problemSchema.testcases)
       .where(inArray(problemSchema.testcases.id, ids));
-    
+
     return { deleted: ids.length };
+  }
+
+  async createAssignment(dto: AssignmentDto): Promise<AssignmentResponseDto> {
+    const [assignment] = await this.db
+      .insert(problemSchema.assignments)
+      .values({ name: dto.name })
+      .returning();
+
+    return assignment;
+  }
+
+  async updateAssignment(
+    assignmentId: number,
+    dto: AssignmentDto,
+  ): Promise<AssignmentResponseDto> {
+    const existing = await this.db.query.assignments.findFirst({
+      where: eq(problemSchema.assignments.id, assignmentId),
+    });
+
+    if (!existing)
+      throw new NotFoundException(`Assignment ${assignmentId} not found.`);
+
+    const [assignment] = await this.db
+      .update(problemSchema.assignments)
+      .set(dto)
+      .where(eq(problemSchema.assignments.id, assignmentId))
+      .returning();
+    return assignment;
+  }
+
+  async deleteAssignment(assignmentId: number): Promise<void> {
+    const existing = await this.db.query.assignments.findFirst({
+      where: eq(problemSchema.assignments.id, assignmentId),
+    });
+
+    if (!existing)
+      throw new NotFoundException(`Assignment ${assignmentId} not found.`);
+
+    await this.db
+      .delete(problemSchema.assignments)
+      .where(eq(problemSchema.assignments.id, assignmentId));
+  }
+
+  async assignAssignmentToLab(
+    labId: number,
+    dto: AssignmentToLabDto,
+  ): Promise<AssignmentToLabResponseDto> {
+    const lab = await this.db.query.labs.findFirst({
+      where: eq(labSchema.labs.id, labId),
+    });
+
+    if (!lab) throw new NotFoundException(`Lab ${labId} not found`);
+
+    const assignment = await this.db.query.assignments.findFirst({
+      where: eq(problemSchema.assignments.id, dto.assignmentId),
+    });
+
+    if (!assignment)
+      throw new NotFoundException(`Assignment ${dto.assignmentId} not found`);
+
+    const existing = await this.db.query.labAssignments.findFirst({
+      where: and(
+        eq(problemSchema.labAssignments.labId, labId),
+        eq(problemSchema.labAssignments.assignmentId, dto.assignmentId),
+      ),
+    });
+
+    if (existing)
+      throw new NotFoundException(
+        `Assignment ${dto.assignmentId} already assigned to lab ${labId}`,
+      );
+
+    const [link] = await this.db
+      .insert(problemSchema.labAssignments)
+      .values({ labId, assignmentId: dto.assignmentId })
+      .returning();
+    
+    const [result] = await this.db
+      .select({
+      labId: labSchema.labs.id,
+      labName: labSchema.labs.name,
+      assignmentId: problemSchema.assignments.id,
+      assignmentName: problemSchema.assignments.name,
+      isActive: problemSchema.labAssignments.isActive,
+      })
+      .from(problemSchema.labAssignments)
+      .innerJoin(labSchema.labs,eq(problemSchema.labAssignments.labId,labSchema.labs.id))
+      .innerJoin(problemSchema.assignments, eq(problemSchema.labAssignments.assignmentId, problemSchema.assignments.id))
+      .where(and(
+        eq(problemSchema.labAssignments.labId, link.labId),
+        eq(problemSchema.labAssignments.assignmentId,link.assignmentId)
+      ));
+
+    return plainToInstance(AssignmentToLabResponseDto, result, {
+      excludeExtraneousValues: true,
+    });
+  }
+  async revokeAssignmentFromLab(
+    labId: number,
+    dto: AssignmentToLabDto,
+  ): Promise<void> {
+    const existing = await this.db.query.labAssignments.findFirst({
+      where: and(
+        eq(problemSchema.labAssignments.labId, labId),
+        eq(problemSchema.labAssignments.assignmentId, dto.assignmentId),
+      ),
+    });
+
+    if (!existing)
+      throw new NotFoundException(
+        `Assignment ${dto.assignmentId} is not assigned to lab ${labId}`,
+      );
+
+    await this.db
+      .delete(problemSchema.labAssignments)
+      .where(
+        and(
+          eq(problemSchema.labAssignments.labId, labId),
+          eq(problemSchema.labAssignments.assignmentId, dto.assignmentId),
+        ),
+      );
+  }
+
+  async assignProblemToAssignment(
+    assignmentId: number,
+    dto: ProblemToAssignmentDto,
+  ): Promise<ProblemToAssignmentResponseDto> {
+    const assignment = await this.db.query.assignments.findFirst({
+      where: eq(problemSchema.assignments.id, assignmentId),
+    });
+    if (!assignment)
+      throw new NotFoundException(`Assignment ${assignmentId} not found`);
+
+    const problem = await this.db.query.problems.findFirst({
+      where: eq(problemSchema.problems.id, dto.problemId),
+    });
+    if (!problem)
+      throw new NotFoundException(`Problem ${dto.problemId} not found`);
+
+    const existing = await this.db.query.assignmentProblems.findFirst({
+      where: and(
+        eq(problemSchema.assignmentProblems.assignmentId, assignmentId),
+        eq(problemSchema.assignmentProblems.problemId, dto.problemId),
+      ),
+    });
+    if (existing)
+      throw new BadRequestException(
+        `Problem already assigned to assignment ${assignmentId}`,
+      );
+
+    const [link] = await this.db
+      .insert(problemSchema.assignmentProblems)
+      .values({ assignmentId, problemId: dto.problemId })
+      .returning();
+    return link;
+  }
+
+  async revokeProblemFromAssignment(
+    assignmentId: number,
+    dto: ProblemToAssignmentDto,
+  ): Promise<void> {
+    const existing = await this.db.query.assignmentProblems.findFirst({
+      where: and(
+        eq(problemSchema.assignmentProblems.assignmentId, assignmentId),
+        eq(problemSchema.assignmentProblems.problemId, dto.problemId),
+      ),
+    });
+    if (!existing)
+      throw new NotFoundException(
+        `Problem ${dto.problemId} is not in assignment ${assignmentId}`,
+      );
+
+    await this.db
+      .delete(problemSchema.assignmentProblems)
+      .where(
+        and(
+          eq(problemSchema.assignmentProblems.assignmentId, assignmentId),
+          eq(problemSchema.assignmentProblems.problemId, dto.problemId),
+        ),
+      );
+  }
+
+  async reorderProblems(
+    assignmentId: number,
+    dto: ReorderProblemsDto,
+  ): Promise<AssignmentProblemResponseDto[]> {
+    const assignment = await this.db.query.assignments.findFirst({
+      where: eq(problemSchema.assignments.id, assignmentId),
+    });
+    if (!assignment)
+      throw new NotFoundException(`Assignment ${assignmentId} not found`);
+
+    const links = await this.db.query.assignmentProblems.findMany({
+      where: eq(problemSchema.assignmentProblems.assignmentId, assignmentId),
+    });
+
+    const linkedIds = links.map((l) => l.problemId);
+
+    if (dto.problemIds.length !== linkedIds.length)
+      throw new BadRequestException(
+        `problemIds must include all problems in the assignment`,
+      );
+
+    const allBelong = dto.problemIds.every((id) => linkedIds.includes(id));
+    if (!allBelong)
+      throw new BadRequestException(
+        `Some problems do not belong to assignment ${assignmentId}`,
+      );
+
+    return this.db.transaction(async (tx) => {
+      await Promise.all(
+        dto.problemIds.map((problemId, index) =>
+          tx
+            .update(problemSchema.assignmentProblems)
+            .set({ order: index + 1 })
+            .where(
+              and(
+                eq(problemSchema.assignmentProblems.assignmentId, assignmentId),
+                eq(problemSchema.assignmentProblems.problemId, problemId),
+              ),
+            ),
+        ),
+      );
+
+      return tx.query.assignmentProblems.findMany({
+        where: eq(problemSchema.assignmentProblems.assignmentId, assignmentId),
+        with: { problem: true },
+        orderBy: asc(problemSchema.assignmentProblems.order),
+      });
+    });
+  }
+
+  async findAllAssignments(): Promise<AssignmentResponseDto[]> {
+    const rows = await this.db.query.assignments.findMany();
+    return plainToInstance(AssignmentResponseDto, rows, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async findProblemsInAssignment(
+    assignmentId: number,
+  ): Promise<AssignmentProblemResponseDto[]> {
+    const assignment = await this.db.query.assignments.findFirst({
+      where: eq(problemSchema.assignments.id, assignmentId),
+    });
+    if (!assignment)
+      throw new NotFoundException(`Assignment ${assignmentId} not found`);
+
+    const rows = await this.db.query.assignmentProblems.findMany({
+      where: eq(problemSchema.assignmentProblems.assignmentId, assignmentId),
+      with: { problem: true },
+      orderBy: asc(problemSchema.assignmentProblems.order),
+    });
+
+    return plainToInstance(AssignmentProblemResponseDto, rows, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async findAssignmentsOfLab(labId: number): Promise<AssignmentFromLabResponseDto[]> {
+    const lab = await this.db.query.labs.findFirst({
+      where: eq(labSchema.labs.id, labId),
+    });
+    if (!lab) throw new NotFoundException(`Lab ${labId} not found`);
+
+    const rows = await this.db.query.labAssignments.findMany({
+      where: eq(problemSchema.labAssignments.labId, labId),
+      with: { assignment: true },
+    });
+
+    return plainToInstance(AssignmentFromLabResponseDto, rows, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async activateAssignment(
+    assignmentId: number,
+    dto:ActivateAssignmentDto
+  ): Promise<ActivateAssignmentResponseDto> {
+    const existing = await this.db.query.labAssignments.findFirst({
+      where: and(
+        eq(problemSchema.labAssignments.labId, dto.labId),
+        eq(problemSchema.labAssignments.assignmentId, assignmentId),
+      ),
+    });
+    if (!existing)
+      throw new NotFoundException(
+        `Assignment ${assignmentId} is not assigned to lab ${dto.labId}`,
+      );
+
+    await this.db
+      .update(problemSchema.labAssignments)
+      .set({ isActive: false })
+      .where(eq(problemSchema.labAssignments.labId, dto.labId));
+
+    const [updated] = await this.db
+      .update(problemSchema.labAssignments)
+      .set({ isActive: true })
+      .where(
+        and(
+          eq(problemSchema.labAssignments.labId, dto.labId),
+          eq(problemSchema.labAssignments.assignmentId, assignmentId),
+        ),
+      )
+      .returning();
+
+    return updated
   }
 }

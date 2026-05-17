@@ -7,6 +7,7 @@ import {
   IsArray,
   ValidateNested,
   Min,
+  IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -24,7 +25,6 @@ export class TestcaseDto {
   isPublic?: boolean;
 }
 
-
 export class CreateProblemDto {
   @IsString()
   name: string;
@@ -36,11 +36,6 @@ export class CreateProblemDto {
   @Min(0)
   @Type(() => Number)
   points: number;
-
-  @IsInt()
-  @Type(() => Number)
-  @IsOptional()
-  serialNo?: number;
 
   @IsString()
   content: string;
@@ -64,7 +59,6 @@ export class CreateProblemDto {
   testcases?: TestcaseDto[];
 }
 
-
 export class UpdateProblemDto {
   @IsString()
   @IsOptional()
@@ -79,11 +73,6 @@ export class UpdateProblemDto {
   @Type(() => Number)
   @IsOptional()
   points?: number;
-
-  @IsInt()
-  @IsOptional()
-  @Type(() => Number)
-  serialNo?: number;
 
   @IsString()
   @IsOptional()
@@ -106,4 +95,15 @@ export class UpdateProblemDto {
   @Type(() => TestcaseDto)
   @IsOptional()
   testcases?: TestcaseDto[];
+}
+
+export class ProblemToAssignmentDto {
+  @IsUUID('4')
+  problemId: string;
+}
+
+export class ReorderProblemsDto {
+  @IsArray()
+  @IsUUID('4', { each: true })
+  problemIds: string[];
 }

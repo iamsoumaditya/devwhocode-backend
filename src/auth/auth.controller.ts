@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseUUIDPipe,
   Post,
   Req,
   Res,
@@ -19,6 +22,7 @@ import {
   LoginLabAssistantDto,
   ResetPasswordDto,
   ForgetPasswordDto,
+  DeleteStudentDto,
 } from './dto/index';
 import type { Request, Response } from 'express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -77,10 +81,10 @@ export class AuthController {
   @ResponseMessage('Lab Assistant registered successfully')
   registerAssistant(
     @Body() dto: RegisterLabAssistantDto,
-    @CurrentUser() user:RequestUser,
+    @CurrentUser() user: RequestUser,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseDto> {
-    return this.authService.registerAssistant(dto,user, res);
+    return this.authService.registerAssistant(dto, user, res);
   }
 
   @Post('assistant/login')
@@ -138,5 +142,13 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   getProfile(@CurrentUser() user: RequestUser) {
     return this.authService.getUser(user);
+  }
+
+  @Delete('students')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AssistantGuard)
+  @ResponseMessage('Students deleted successfully')
+  deleteAssistant(@Body() dto: DeleteStudentDto): Promise<{ deleted: number }> {
+    return this.authService.deleteStudent(dto);
   }
 }

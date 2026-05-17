@@ -42,9 +42,6 @@ export class ProblemResponseDto {
   points: number;
 
   @Expose()
-  serialNo: number;
-
-  @Expose()
   problemDetailsId: string | null;
 }
 
@@ -58,4 +55,21 @@ export class ProblemDetailsWithTestcasesDto extends ProblemWithDetailsResponseDt
   @Expose()
   @Type(() => TestcaseResponseDto)
   testcases: TestcaseResponseDto[];
+}
+
+export class ProblemToAssignmentResponseDto {
+  @Expose() assignmentId: number;
+  @Expose() problemId: string;
+  @Expose() order: number;
+  @Expose() createdAt:Date
+}
+
+export class AssignmentProblemResponseDto {
+  @Expose() assignmentId: number;
+  @Expose() problemId: string;
+  @Expose() order: number;
+  @Expose() createdAt: Date;
+  @Expose()
+  @Type(() => ProblemResponseDto)
+  problem: ProblemResponseDto;
 }

@@ -1,3 +1,4 @@
+export { DeleteStudentDto } from "./student.delete.dto";
 export { ForgetPasswordDto } from "./forget.password.dto";
 export { ResetPasswordDto } from "./reset.password.dto";
 export { LoginLabAssistantDto } from "./labAssistant.login.dto";

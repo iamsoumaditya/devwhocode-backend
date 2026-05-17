@@ -6,8 +6,8 @@ import { validationSchema } from './config/validations.schema';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { ProblemsService } from './problems/problems.service';
 import { ProblemsModule } from './problems/problems.module';
+import { LabAssistantModule } from './lab_assistant/lab_assistant.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,9 +23,10 @@ import { ProblemsModule } from './problems/problems.module';
     DatabaseModule,
     UsersModule,
     AuthModule,
-    ProblemsModule
+    ProblemsModule,
+    LabAssistantModule
   ],
   controllers: [AppController],
-  providers: [AppService, ProblemsService],
+  providers: [AppService],
 })
 export class AppModule {}

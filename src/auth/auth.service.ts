@@ -10,7 +10,7 @@ import {
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as userSchema from '../users/schema';
-import * as labAssistantSchema from '../lab_assistant/schema';
+import * as labSchema from '../lab_assistant/schema';
 import {
   AuthResponseDto,
   LoginLabAssistantDto,
@@ -19,8 +19,9 @@ import {
   LoginStudentDto,
   ForgetPasswordDto,
   ResetPasswordDto,
+  DeleteStudentDto,
 } from './dto';
-import { eq, or } from 'drizzle-orm';
+import { eq, inArray, or } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -42,9 +43,7 @@ type StringValue =
 export class AuthService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private readonly db: NodePgDatabase<
-      typeof userSchema & typeof labAssistantSchema
-    >,
+    private readonly db: NodePgDatabase<typeof userSchema & typeof labSchema>,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
   ) {}
@@ -118,21 +117,21 @@ export class AuthService {
     return await bcrypt.compare(password, hashedPassword);
   }
 
-  private async isAdmin(user: RequestUser): Promise<boolean> {
+  async isAdmin(user: RequestUser): Promise<boolean> {
     const [assistant] = await this.db
       .select({
-        role: labAssistantSchema.labAssistants.role,
+        role: labSchema.labAssistants.role,
       })
-      .from(labAssistantSchema.labAssistants)
-      .where(eq(labAssistantSchema.labAssistants.id, user.id))
+      .from(labSchema.labAssistants)
+      .where(eq(labSchema.labAssistants.id, user.id))
       .limit(1);
 
     if (!assistant) {
-      return false
+      return false;
     } else if (assistant.role === 'admin') {
       return true;
     } else {
-      return false
+      return false;
     }
   }
   async registerStudent(
@@ -255,9 +254,9 @@ export class AuthService {
     }
 
     const [lab] = await this.db
-      .select({ id: labAssistantSchema.labs.id })
-      .from(labAssistantSchema.labs)
-      .where(eq(labAssistantSchema.labs.id, dto.labId))
+      .select({ id: labSchema.labs.id })
+      .from(labSchema.labs)
+      .where(eq(labSchema.labs.id, dto.labId))
       .limit(1);
 
     if (!lab) {
@@ -266,15 +265,15 @@ export class AuthService {
 
     const [existingByLab] = await this.db
       .select({
-        id: labAssistantSchema.labAssistants.id,
-        labId: labAssistantSchema.labAssistants.labId,
-        email: labAssistantSchema.labAssistants.email,
+        id: labSchema.labAssistants.id,
+        labId: labSchema.labAssistants.labId,
+        email: labSchema.labAssistants.email,
       })
-      .from(labAssistantSchema.labAssistants)
+      .from(labSchema.labAssistants)
       .where(
         or(
-          eq(labAssistantSchema.labAssistants.labId, dto.labId),
-          eq(labAssistantSchema.labAssistants.email, dto.email),
+          eq(labSchema.labAssistants.labId, dto.labId),
+          eq(labSchema.labAssistants.email, dto.email),
         ),
       )
       .limit(1);
@@ -293,7 +292,7 @@ export class AuthService {
     let newAssistant: { id: string; name: string; email: string };
     try {
       [newAssistant] = await this.db
-        .insert(labAssistantSchema.labAssistants)
+        .insert(labSchema.labAssistants)
         .values({
           name: dto.name,
           email: dto.email,
@@ -301,9 +300,9 @@ export class AuthService {
           labId: dto.labId,
         })
         .returning({
-          id: labAssistantSchema.labAssistants.id,
-          name: labAssistantSchema.labAssistants.name,
-          email: labAssistantSchema.labAssistants.email,
+          id: labSchema.labAssistants.id,
+          name: labSchema.labAssistants.name,
+          email: labSchema.labAssistants.email,
         });
     } catch {
       throw new InternalServerErrorException(
@@ -329,13 +328,13 @@ export class AuthService {
   ): Promise<AuthResponseDto> {
     const [assistant] = await this.db
       .select({
-        id: labAssistantSchema.labAssistants.id,
-        name: labAssistantSchema.labAssistants.name,
-        email: labAssistantSchema.labAssistants.email,
-        password: labAssistantSchema.labAssistants.password,
+        id: labSchema.labAssistants.id,
+        name: labSchema.labAssistants.name,
+        email: labSchema.labAssistants.email,
+        password: labSchema.labAssistants.password,
       })
-      .from(labAssistantSchema.labAssistants)
-      .where(eq(labAssistantSchema.labAssistants.email, dto.email))
+      .from(labSchema.labAssistants)
+      .where(eq(labSchema.labAssistants.email, dto.email))
       .limit(1);
 
     if (!assistant) {
@@ -428,7 +427,6 @@ export class AuthService {
     dto: ForgetPasswordDto,
     user: RequestUser,
   ): Promise<{ success: boolean }> {
-
     const isValidAdmin = await this.isAdmin(user);
 
     if (!isValidAdmin) {
@@ -439,10 +437,10 @@ export class AuthService {
 
     const [assistant] = await this.db
       .select({
-        password: labAssistantSchema.labAssistants.password,
+        password: labSchema.labAssistants.password,
       })
-      .from(labAssistantSchema.labAssistants)
-      .where(eq(labAssistantSchema.labAssistants.id, dto.id))
+      .from(labSchema.labAssistants)
+      .where(eq(labSchema.labAssistants.id, dto.id))
       .limit(1);
 
     if (!assistant) {
@@ -453,9 +451,9 @@ export class AuthService {
 
     try {
       await this.db
-        .update(labAssistantSchema.labAssistants)
+        .update(labSchema.labAssistants)
         .set({ password: passwordHash })
-        .where(eq(labAssistantSchema.labAssistants.id, dto.id));
+        .where(eq(labSchema.labAssistants.id, dto.id));
 
       return { success: true };
     } catch (error) {
@@ -470,10 +468,10 @@ export class AuthService {
   ): Promise<{ success: boolean }> {
     const [assistant] = await this.db
       .select({
-        password: labAssistantSchema.labAssistants.password,
+        password: labSchema.labAssistants.password,
       })
-      .from(labAssistantSchema.labAssistants)
-      .where(eq(labAssistantSchema.labAssistants.id, dto.id))
+      .from(labSchema.labAssistants)
+      .where(eq(labSchema.labAssistants.id, dto.id))
       .limit(1);
 
     if (!assistant) {
@@ -492,9 +490,9 @@ export class AuthService {
 
     try {
       await this.db
-        .update(labAssistantSchema.labAssistants)
+        .update(labSchema.labAssistants)
         .set({ password: passwordHash })
-        .where(eq(labAssistantSchema.labAssistants.id, dto.id));
+        .where(eq(labSchema.labAssistants.id, dto.id));
 
       return { success: true };
     } catch (error) {
@@ -571,23 +569,20 @@ export class AuthService {
     } else {
       result = await this.db
         .select({
-          id: labAssistantSchema.labAssistants.id,
-          name: labAssistantSchema.labAssistants.name,
-          email: labAssistantSchema.labAssistants.email,
+          id: labSchema.labAssistants.id,
+          name: labSchema.labAssistants.name,
+          email: labSchema.labAssistants.email,
           lab: {
-            id: labAssistantSchema.labs.id,
-            name: labAssistantSchema.labs.name,
+            id: labSchema.labs.id,
+            name: labSchema.labs.name,
           },
         })
-        .from(labAssistantSchema.labAssistants)
+        .from(labSchema.labAssistants)
         .innerJoin(
-          labAssistantSchema.labs,
-          eq(
-            labAssistantSchema.labAssistants.labId,
-            labAssistantSchema.labs.id,
-          ),
+          labSchema.labs,
+          eq(labSchema.labAssistants.labId, labSchema.labs.id),
         )
-        .where(eq(labAssistantSchema.labAssistants.id, user.id))
+        .where(eq(labSchema.labAssistants.id, user.id))
         .limit(1);
     }
 
@@ -596,5 +591,23 @@ export class AuthService {
     }
 
     return result;
+  }
+
+  async deleteStudent(dto: DeleteStudentDto): Promise<{deleted:number}> {
+    const existing = await this.db.query.users.findMany({
+      where: inArray(userSchema.users.id, dto.studentIds),
+    });
+
+    if (existing.length !== dto.studentIds.length) {
+      const foundIds = existing.map((tc) => tc.id);
+      const missing = dto.studentIds.filter((id) => !foundIds.includes(id));
+      throw new NotFoundException(`Students not found: ${missing.join(', ')}`);
+    }
+
+    await this.db
+      .delete(userSchema.users)
+      .where(inArray(userSchema.users.id, dto.studentIds));
+
+    return { deleted: dto.studentIds.length };
   }
 }
