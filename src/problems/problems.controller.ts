@@ -29,7 +29,8 @@ import {
   UpdateProblemDto,
 } from './dto';
 import { AssistantGuard } from '../common/guards/assistant.guard';
-
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+@UseGuards(JwtAuthGuard)
 @Controller('problems')
 export class ProblemsController {
   constructor(private readonly problemsService: ProblemsService) {}

@@ -39,9 +39,6 @@ export class ProblemResponseDto {
   type: ProblemType;
 
   @Expose()
-  points: number;
-
-  @Expose()
   problemDetailsId: string | null;
 }
 

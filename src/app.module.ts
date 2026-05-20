@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProblemsModule } from './problems/problems.module';
 import { LabAssistantModule } from './lab_assistant/lab_assistant.module';
+import { ExecuteModule } from './execute/execute.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -24,7 +25,8 @@ import { LabAssistantModule } from './lab_assistant/lab_assistant.module';
     UsersModule,
     AuthModule,
     ProblemsModule,
-    LabAssistantModule
+    LabAssistantModule,
+    ExecuteModule
   ],
   controllers: [AppController],
   providers: [AppService],

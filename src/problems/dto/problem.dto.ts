@@ -10,8 +10,9 @@ import {
   IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { PROBLEM_TYPE } from '../constant';
 
-export type ProblemType = 'Easy' | 'Medium' | 'Hard';
+export type ProblemType = typeof PROBLEM_TYPE[number]
 
 export class TestcaseDto {
   @IsString()
@@ -29,13 +30,8 @@ export class CreateProblemDto {
   @IsString()
   name: string;
 
-  @IsEnum(['Easy', 'Medium', 'Hard'])
+  @IsEnum(PROBLEM_TYPE)
   type: ProblemType;
-
-  @IsInt()
-  @Min(0)
-  @Type(() => Number)
-  points: number;
 
   @IsString()
   content: string;
@@ -64,15 +60,10 @@ export class UpdateProblemDto {
   @IsOptional()
   name?: string;
 
-  @IsEnum(['Easy', 'Medium', 'Hard'])
+  @IsEnum(PROBLEM_TYPE)
   @IsOptional()
   type?: ProblemType;
 
-  @IsInt()
-  @Min(0)
-  @Type(() => Number)
-  @IsOptional()
-  points?: number;
 
   @IsString()
   @IsOptional()

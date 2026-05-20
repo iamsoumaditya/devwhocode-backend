@@ -60,7 +60,6 @@ export class ProblemsService {
           name: dto.name,
           slug,
           type: dto.type,
-          points: dto.points,
           problemDetailsId: detail.id,
         })
         .returning();

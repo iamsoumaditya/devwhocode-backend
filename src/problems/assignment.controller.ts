@@ -23,7 +23,8 @@ import {
   AssignmentToLabDto,
   AssignmentToLabResponseDto,
 } from './dto';
-
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+@UseGuards(JwtAuthGuard)
 @Controller('assignment')
 export class AssignmentController {
   constructor(private readonly problemsService: ProblemsService) {}

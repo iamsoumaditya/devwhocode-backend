@@ -18,7 +18,8 @@ import { AssistantGuard } from '../common/guards/assistant.guard';
 import { LabDto, LabResponseDto } from './dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { type RequestUser } from '../common/strategies/jwt.strategy';
-
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+@UseGuards(JwtAuthGuard)
 @Controller('lab')
 export class LabAssistantController {
   constructor(private readonly labAssistantService: LabAssistantService) {}
