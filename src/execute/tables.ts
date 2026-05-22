@@ -38,7 +38,7 @@ export const runCollection = pgTable('run_collections', {
   userId: uuid('user_id').references(() => users.id, {
     onDelete: 'cascade',
   }),
-  problemId: uuid('problem_id').references(() => problems.id, {
+  problemId: uuid('problem_id').notNull().notNull().references(() => problems.id, {
     onDelete: 'cascade',
   }),
   runCount: integer('run_count').default(0).notNull(),
@@ -63,7 +63,7 @@ export const submitCollection = pgTable('submit_collections', {
   userId: uuid('user_id').references(() => users.id, {
     onDelete: 'cascade',
   }),
-  problemId: uuid('problem_id').references(() => problems.id, {
+  problemId: uuid('problem_id').notNull().references(() => problems.id, {
     onDelete: 'cascade',
   }),
   submitCount: integer('submit_count').default(0).notNull(),
