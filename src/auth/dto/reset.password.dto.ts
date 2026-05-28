@@ -1,4 +1,4 @@
-import {IsString, IsUUID, Matches, MinLength } from 'class-validator';
+import { IsString, IsUUID, Matches, MinLength } from 'class-validator';
 
 export class ResetPasswordDto {
   @IsUUID()

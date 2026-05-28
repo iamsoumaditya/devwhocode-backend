@@ -593,7 +593,7 @@ export class AuthService {
     return result;
   }
 
-  async deleteStudent(dto: DeleteStudentDto): Promise<{deleted:number}> {
+  async deleteStudent(dto: DeleteStudentDto): Promise<{ deleted: number }> {
     const existing = await this.db.query.users.findMany({
       where: inArray(userSchema.users.id, dto.studentIds),
     });

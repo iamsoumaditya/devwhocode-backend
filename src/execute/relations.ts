@@ -37,7 +37,6 @@ export const runCollectionRelations = relations(runCollection, ({ one }) => ({
   }),
 }));
 
-
 export const submitCollectionRelations = relations(
   submitCollection,
   ({ one }) => ({

@@ -11,8 +11,4 @@ export {
   UsersQueryResponseDto,
   UsersQueryDto,
 } from './query.dto';
-export {
-  UserStatsDto,
-  ProblemStatDto,
-  StatsResponseDto,
-} from './stat.dto';
+export { UserStatsDto, ProblemStatDto, StatsResponseDto } from './stat.dto';

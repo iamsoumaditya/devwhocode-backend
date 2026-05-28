@@ -20,12 +20,12 @@ async function bootstrap() {
   });
 
   app.setGlobalPrefix('api');
-  
+
   app.enableVersioning({
-    type: VersioningType.URI, 
-    defaultVersion: '1', 
+    type: VersioningType.URI,
+    defaultVersion: '1',
   });
- app.use(cookieParser());
+  app.use(cookieParser());
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   app.useGlobalInterceptors(new ResponseInterceptor(app.get(Reflector)));
@@ -42,7 +42,7 @@ async function bootstrap() {
   );
 
   await app.listen(port ?? 3000, () => {
-    console.log(`Dev Who Code is running on http://localhost:${port}`)
+    console.log(`Dev Who Code is running on http://localhost:${port}`);
   });
 }
 bootstrap();

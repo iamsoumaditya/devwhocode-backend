@@ -8,7 +8,10 @@ import {
   Min,
 } from 'class-validator';
 import { Expose, Type } from 'class-transformer';
-import { type ExecutorTestResult, type ResultOfExecution } from '../types/executor.types';
+import {
+  type ExecutorTestResult,
+  type ResultOfExecution,
+} from '../types/executor.types';
 
 export class AttachmentDto {
   @IsString()

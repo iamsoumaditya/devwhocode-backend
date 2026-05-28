@@ -4,6 +4,4 @@ export {
   type ExecutorTestcase,
   type ResultOfExecution,
 } from './executor.types';
-export {
-  type RawRecord,
-} from './leaderboard.types';
+export { type RawRecord } from './leaderboard.types';

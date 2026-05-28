@@ -13,7 +13,12 @@ import {
 import { ExecuteService } from './execute.service';
 import { RunCodeDto, SubmitCodeDto } from './dto/execute.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { LeaderboardDto, LeaderboardResponseDto, StatResultDto, StatsDto } from './dto';
+import {
+  LeaderboardDto,
+  LeaderboardResponseDto,
+  StatResultDto,
+  StatsDto,
+} from './dto';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -57,17 +62,17 @@ export class ExecuteController {
     };
   }
 
-  
   @Get('leaderboard')
   @HttpCode(HttpStatus.OK)
-  async leaderboard(@Query() dto: LeaderboardDto): Promise<LeaderboardResponseDto>{
-    return  await this.executeService.leaderboard(dto);
+  async leaderboard(
+    @Query() dto: LeaderboardDto,
+  ): Promise<LeaderboardResponseDto> {
+    return await this.executeService.leaderboard(dto);
   }
 
-  
   @Get('stats')
   @HttpCode(HttpStatus.OK)
-  async stats(@Query() dto: StatsDto):Promise<StatResultDto> {
+  async stats(@Query() dto: StatsDto): Promise<StatResultDto> {
     return await this.executeService.stats(dto);
   }
 }

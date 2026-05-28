@@ -6,7 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { GuardsModule } from '../common/guards.module';
 
 @Module({
-  imports: [DatabaseModule, JwtModule,GuardsModule],
+  imports: [DatabaseModule, JwtModule, GuardsModule],
   controllers: [AuthController],
   providers: [AuthService],
 })

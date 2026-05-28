@@ -1,7 +1,15 @@
-import { relations } from "drizzle-orm";
-import { assignmentProblems, assignments, labAssignments, problemDetails, problems, problemsTestcases, testcases } from "./tables";
-import { labs } from "../lab_assistant/tables";
-import { runCollection, submitCollection } from "../execute/tables";
+import { relations } from 'drizzle-orm';
+import {
+  assignmentProblems,
+  assignments,
+  labAssignments,
+  problemDetails,
+  problems,
+  problemsTestcases,
+  testcases,
+} from './tables';
+import { labs } from '../lab_assistant/tables';
+import { runCollection, submitCollection } from '../execute/tables';
 
 export const problemRelations = relations(problems, ({ one, many }) => ({
   problemDetails: one(problemDetails, {
@@ -54,8 +62,6 @@ export const assignmentsRelations = relations(assignments, ({ many }) => ({
   assignmentProblems: many(assignmentProblems),
   labAssignments: many(labAssignments),
 }));
-
-
 
 export const labAssignmentsRelations = relations(labAssignments, ({ one }) => ({
   assignment: one(assignments, {

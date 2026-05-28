@@ -18,9 +18,7 @@ import { AuthService } from '../auth/auth.service';
 export class LabAssistantService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private readonly db: NodePgDatabase<
-      typeof problemSchema & typeof labSchema
-    >,
+    private readonly db: NodePgDatabase<typeof problemSchema>,
     private readonly authService: AuthService,
   ) {}
 

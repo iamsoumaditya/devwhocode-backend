@@ -1,12 +1,18 @@
-import { ForbiddenException, Inject, Injectable, NotFoundException, UseGuards } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UseGuards,
+} from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { DATABASE_CONNECTION } from '../database/database-connection';
 import { eq, and, count, desc, inArray } from 'drizzle-orm';
-import {users,departments} from './tables';
+import { users, departments } from './tables';
 import * as userSchema from './schema';
-import { assignmentProblems, assignments, problems } from "../problems/tables";
-import { runCollection,submitCollection,languages } from "../execute/tables";
+import { assignmentProblems, assignments, problems } from '../problems/tables';
+import { runCollection, submitCollection, languages } from '../execute/tables';
 import {
   UserRunsDto,
   UserSubmitsDto,
@@ -205,11 +211,10 @@ export class UsersService {
 
   async getAssignmentStatsByUserId(
     userId: string,
-    user:RequestUser,
+    user: RequestUser,
     query: UserStatsDto,
   ): Promise<StatsResponseDto> {
-
-    this.assertCanAccessUser(user,userId);
+    this.assertCanAccessUser(user, userId);
     await this.assertUserExists(userId);
 
     const { assignmentId } = query;
@@ -229,10 +234,7 @@ export class UsersService {
         assignmentProblems,
         eq(assignmentProblems.assignmentId, assignments.id),
       )
-      .innerJoin(
-        problems,
-        eq(problems.id, assignmentProblems.problemId),
-      )
+      .innerJoin(problems, eq(problems.id, assignmentProblems.problemId))
       .where(eq(assignments.id, assignmentId))
       .orderBy(assignmentProblems.order);
 
@@ -250,8 +252,8 @@ export class UsersService {
           eq(runCollection.userId, userId),
           inArray(runCollection.problemId, problemIds),
         ),
-    );
-    
+      );
+
     const submitRows = await this.db
       .select({
         problemId: submitCollection.problemId,
@@ -270,7 +272,6 @@ export class UsersService {
       submitRows.filter((s) => s.result === 'PASSED').map((s) => s.problemId),
     );
 
-
     const problem: ProblemStatDto[] = assignmentRows.map((p) => ({
       problemId: p.problemId,
       problemName: p.problemName,
@@ -280,7 +281,6 @@ export class UsersService {
       attempted: attemptedSet.has(p.problemId),
       accepted: acceptedSet.has(p.problemId),
     }));
-
 
     const totalProblems = problem.length;
     const attemptedCount = problem.filter((p) => p.attempted).length;
@@ -294,7 +294,7 @@ export class UsersService {
       acceptedCount,
       attemptedPercentage: Math.round((attemptedCount / totalProblems) * 100),
       acceptedPercentage: Math.round((acceptedCount / totalProblems) * 100),
-      problems:problem,
+      problems: problem,
     };
   }
 }

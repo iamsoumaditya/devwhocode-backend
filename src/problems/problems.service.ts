@@ -395,22 +395,33 @@ export class ProblemsService {
       .insert(problemSchema.labAssignments)
       .values({ labId, assignmentId: dto.assignmentId })
       .returning();
-    
+
     const [result] = await this.db
       .select({
-      labId: labSchema.labs.id,
-      labName: labSchema.labs.name,
-      assignmentId: problemSchema.assignments.id,
-      assignmentName: problemSchema.assignments.name,
-      isActive: problemSchema.labAssignments.isActive,
+        labId: labSchema.labs.id,
+        labName: labSchema.labs.name,
+        assignmentId: problemSchema.assignments.id,
+        assignmentName: problemSchema.assignments.name,
+        isActive: problemSchema.labAssignments.isActive,
       })
       .from(problemSchema.labAssignments)
-      .innerJoin(labSchema.labs,eq(problemSchema.labAssignments.labId,labSchema.labs.id))
-      .innerJoin(problemSchema.assignments, eq(problemSchema.labAssignments.assignmentId, problemSchema.assignments.id))
-      .where(and(
-        eq(problemSchema.labAssignments.labId, link.labId),
-        eq(problemSchema.labAssignments.assignmentId,link.assignmentId)
-      ));
+      .innerJoin(
+        labSchema.labs,
+        eq(problemSchema.labAssignments.labId, labSchema.labs.id),
+      )
+      .innerJoin(
+        problemSchema.assignments,
+        eq(
+          problemSchema.labAssignments.assignmentId,
+          problemSchema.assignments.id,
+        ),
+      )
+      .where(
+        and(
+          eq(problemSchema.labAssignments.labId, link.labId),
+          eq(problemSchema.labAssignments.assignmentId, link.assignmentId),
+        ),
+      );
 
     return plainToInstance(AssignmentToLabResponseDto, result, {
       excludeExtraneousValues: true,
@@ -578,7 +589,9 @@ export class ProblemsService {
     });
   }
 
-  async findAssignmentsOfLab(labId: number): Promise<AssignmentFromLabResponseDto[]> {
+  async findAssignmentsOfLab(
+    labId: number,
+  ): Promise<AssignmentFromLabResponseDto[]> {
     const lab = await this.db.query.labs.findFirst({
       where: eq(labSchema.labs.id, labId),
     });
@@ -596,7 +609,7 @@ export class ProblemsService {
 
   async activateAssignment(
     assignmentId: number,
-    dto:ActivateAssignmentDto
+    dto: ActivateAssignmentDto,
   ): Promise<ActivateAssignmentResponseDto> {
     const existing = await this.db.query.labAssignments.findFirst({
       where: and(
@@ -625,6 +638,6 @@ export class ProblemsService {
       )
       .returning();
 
-    return updated
+    return updated;
   }
 }

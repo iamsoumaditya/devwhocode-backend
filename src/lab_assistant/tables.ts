@@ -22,5 +22,3 @@ export const labs = pgTable('labs', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
 });
-
-

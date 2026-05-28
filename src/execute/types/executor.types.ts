@@ -1,4 +1,4 @@
-import { RESULT_OF_EXECUTION } from "../constant";
+import { RESULT_OF_EXECUTION } from '../constant';
 
 export interface ExecutorTestcase {
   is_public: boolean;
