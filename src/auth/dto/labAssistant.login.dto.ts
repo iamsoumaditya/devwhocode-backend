@@ -1,13 +1,7 @@
-import {
-  IsEmail,
-  IsString,
-  Matches,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class LoginLabAssistantDto {
-
   @IsEmail({}, { message: 'Invalid email address' })
   @Matches(/^[\w.+-]+@aot\.edu\.in$/, {
     message: 'Email must be a Aot mail',

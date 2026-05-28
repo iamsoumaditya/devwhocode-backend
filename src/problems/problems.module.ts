@@ -5,8 +5,8 @@ import { DatabaseModule } from '../database/database.module';
 import { AssignmentController } from './assignment.controller';
 
 @Module({
-  imports:[DatabaseModule],
-  controllers: [ProblemsController,AssignmentController],
-  providers:[ProblemsService],
+  imports: [DatabaseModule],
+  controllers: [ProblemsController, AssignmentController],
+  providers: [ProblemsService],
 })
 export class ProblemsModule {}

@@ -58,7 +58,7 @@ export class ProblemToAssignmentResponseDto {
   @Expose() assignmentId: number;
   @Expose() problemId: string;
   @Expose() order: number;
-  @Expose() createdAt:Date
+  @Expose() createdAt: Date;
 }
 
 export class AssignmentProblemResponseDto {

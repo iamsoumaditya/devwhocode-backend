@@ -8,12 +8,7 @@ import { AssistantGuard } from './guards/assistant.guard';
 
 @Module({
   imports: [PassportModule.register({ defaultStrategy: 'jwt' }), ConfigModule],
-  providers: [
-    JwtStrategy,
-    JwtAuthGuard,
-    StudentGuard,
-    AssistantGuard,
-  ],
+  providers: [JwtStrategy, JwtAuthGuard, StudentGuard, AssistantGuard],
   exports: [JwtAuthGuard, StudentGuard, AssistantGuard],
 })
 export class GuardsModule {}

@@ -17,7 +17,7 @@ import { ExecuteModule } from './execute/execute.module';
       validationSchema,
       validationOptions: {
         allowUnknown: false,
-        abortEarly: true, 
+        abortEarly: true,
       },
       validatePredefined: false,
     }),
@@ -26,7 +26,7 @@ import { ExecuteModule } from './execute/execute.module';
     AuthModule,
     ProblemsModule,
     LabAssistantModule,
-    ExecuteModule
+    ExecuteModule,
   ],
   controllers: [AppController],
   providers: [AppService],

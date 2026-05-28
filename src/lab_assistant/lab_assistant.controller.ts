@@ -44,7 +44,7 @@ export class LabAssistantController {
     @Body() dto: LabDto,
     @CurrentUser() user: RequestUser,
   ): Promise<LabResponseDto> {
-    return this.labAssistantService.updateLab(labId, dto,user);
+    return this.labAssistantService.updateLab(labId, dto, user);
   }
 
   @Delete('/:labId')

@@ -1,98 +1,260 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# DevWhoCode Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend API for **DevWhoCode**, built with **NestJS**, **PostgreSQL**, and **Drizzle ORM**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+It supports:
+- Student and lab assistant authentication
+- Lab and assignment management
+- Problem and testcase management
+- Code run/submit execution flows
+- User submissions, runs, stats, and leaderboard APIs
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech Stack
 
-## Project setup
+- **Runtime:** Node.js + TypeScript
+- **Framework:** NestJS
+- **Database:** PostgreSQL
+- **ORM / Migrations:** Drizzle ORM + Drizzle Kit
+- **Validation:** class-validator + Joi (env validation)
+- **Auth:** JWT (access token via ****** + refresh token via cookie)
+- **Package manager:** pnpm
 
-```bash
-$ pnpm install
+---
+
+## Project Structure
+
+```text
+src/
+  auth/            # Auth flows for students and assistants
+  users/           # User listing, runs, submits, stats
+  lab_assistant/   # Lab + assistant management
+  problems/        # Problems, testcases, assignments
+  execute/         # Run/submit execution and analytics
+  common/          # Guards, interceptor, filter, decorators
+  database/        # Database provider (Drizzle + pg)
 ```
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ pnpm run start
+## Environment Variables
 
-# watch mode
-$ pnpm run start:dev
+Create a `.env` file at project root:
 
-# production mode
-$ pnpm run start:prod
+```env
+NODE_ENV=development
+PORT=3000
+DATABASE_URL=******DB_HOST:5432/DB_NAME
+JWT_SECRET_KEY=replace-with-secure-secret
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+EXECUTOR_BASE_URL=http://localhost:8080
 ```
 
-## Run tests
+### Variable Purpose
+
+- `NODE_ENV`: `development | production | test`
+- `PORT`: API port
+- `DATABASE_URL`: PostgreSQL connection string
+- `JWT_SECRET_KEY`: JWT signing secret
+- `JWT_EXPIRES_IN`: Access token TTL
+- `JWT_REFRESH_EXPIRES_IN`: Refresh token TTL
+- `EXECUTOR_BASE_URL`: External code-executor service base URL
+
+---
+
+## Setup & Run (Full Process)
+
+### 1) Install dependencies
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+pnpm install
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 2) Generate migrations (when schema changes)
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+pnpm run generate
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 3) Run migrations
 
-## Resources
+```bash
+pnpm run migrate
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### 4) Start server
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+# watch mode (recommended for development)
+pnpm run start:dev
 
-## Support
+# normal mode
+pnpm run start
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# production (after build)
+pnpm run build
+pnpm run start:prod
+```
 
-## Stay in touch
+API base prefix is:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```text
+/api/v1
+```
+
+So root health route becomes:
+
+```text
+GET /api/v1/
+```
+
+---
+
+## Available Scripts
+
+- `pnpm run start` - Start app
+- `pnpm run start:dev` - Start with watch mode
+- `pnpm run start:debug` - Debug + watch
+- `pnpm run build` - Build to `dist/`
+- `pnpm run start:prod` - Run production build
+- `pnpm run lint` - ESLint with auto-fix
+- `pnpm run format` - Prettier on source files
+- `pnpm run test` - Unit tests
+- `pnpm run test:e2e` - E2E tests
+- `pnpm run test:cov` - Coverage
+- `pnpm run generate` - Generate Drizzle migration
+- `pnpm run migrate` - Apply migrations
+- `pnpm run studio` - Open Drizzle Studio
+
+---
+
+## Authentication & Authorization
+
+### Login flow
+
+1. Login/register endpoint returns access token data.
+2. Server sets `refresh_token` cookie.
+3. Client sends `Authorization: ****** for protected routes.
+4. Use refresh endpoint to rotate tokens when access token expires.
+
+### Guards used
+
+- `JwtAuthGuard` - Requires valid access token
+- `StudentGuard` - Student-only routes
+- `AssistantGuard` - Lab-assistant-only routes
+
+---
+
+## API Response Format
+
+Most endpoints return a standard response wrapper:
+
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "...",
+  "data": {}
+}
+```
+
+---
+
+## Core API Modules
+
+> All routes below are under `/api/v1`.
+
+### Auth (`/auth`)
+
+- `POST /auth/student/register`
+- `POST /auth/student/login`
+- `POST /auth/student/resetPassword` (student)
+- `POST /auth/student/forgetPassword` (assistant)
+- `POST /auth/assistant/register` (assistant)
+- `POST /auth/assistant/login`
+- `POST /auth/assistant/resetPassword` (assistant)
+- `POST /auth/assistant/forgetPassword` (assistant)
+- `GET /auth/refresh`
+- `POST /auth/logout`
+- `GET /auth/me`
+- `DELETE /auth/students` (assistant)
+
+### Users (`/user`)
+
+- `GET /user/all` (assistant)
+- `GET /user/runs`
+- `GET /user/:id/submits`
+- `GET /user/:id/stats`
+
+### Labs (`/lab`)
+
+- `POST /lab` (assistant)
+- `PATCH /lab/:labId` (assistant)
+- `DELETE /lab/:labId` (assistant)
+- `GET /lab/all`
+- `DELETE /lab/assistant/:assistantId` (assistant)
+
+### Problems (`/problems`)
+
+- `POST /problems` (assistant)
+- `PATCH /problems/:id` (assistant)
+- `GET /problems` (assistant)
+- `GET /problems/:id`
+- `PATCH /problems/testcase/:testcaseId` (assistant)
+- `DELETE /problems/testcases` (assistant)
+- `DELETE /problems/:id` (assistant)
+- `POST /problems/assign/:assignmentId` (assistant)
+- `POST /problems/revoke/:assignmentId` (assistant)
+- `POST /problems/reorder/:assignmentId` (assistant)
+- `GET /problems/:assignmentId/all`
+
+### Assignments (`/assignment`)
+
+- `POST /assignment` (assistant)
+- `PATCH /assignment/:assignmentId` (assistant)
+- `DELETE /assignment/:assignmentId` (assistant)
+- `POST /assignment/assign/:labId` (assistant)
+- `POST /assignment/revoke/:labId` (assistant)
+- `GET /assignment/all` (assistant)
+- `GET /assignment/:labId`
+- `POST /assignment/activate/:assignmentId` (assistant)
+
+### Execution (root routes)
+
+- `POST /run`
+- `POST /submit`
+- `DELETE /files/delete`
+- `GET /leaderboard`
+- `GET /stats`
+
+---
+
+## Database Notes
+
+- PostgreSQL is required.
+- Drizzle schema is split across modules (`src/**/schema.ts`).
+- SQL migration files are generated into `drizzle/`.
+
+---
+
+## Validation & Error Handling
+
+- Request DTO validation is enforced globally (`ValidationPipe`).
+- Unknown env variables are rejected by Joi env schema.
+- Global exception filter formats API errors consistently.
+
+---
+
+## Development Notes
+
+- CORS is currently enabled with `origin: '*'`.
+- Global API prefix and versioning are enabled (`/api/v1`).
+- Cookies are enabled via `cookie-parser`.
+
+---
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+UNLICENSED

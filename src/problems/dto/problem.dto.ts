@@ -12,7 +12,7 @@ import {
 import { Type } from 'class-transformer';
 import { PROBLEM_TYPE } from '../constant';
 
-export type ProblemType = typeof PROBLEM_TYPE[number]
+export type ProblemType = (typeof PROBLEM_TYPE)[number];
 
 export class TestcaseDto {
   @IsString()
@@ -63,7 +63,6 @@ export class UpdateProblemDto {
   @IsEnum(PROBLEM_TYPE)
   @IsOptional()
   type?: ProblemType;
-
 
   @IsString()
   @IsOptional()

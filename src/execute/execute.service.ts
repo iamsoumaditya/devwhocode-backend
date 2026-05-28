@@ -230,7 +230,7 @@ export class ExecuteService {
   }
 
   private async uploadFile(
-    attachment: RunCodeDto['attachment'] | SubmitCodeDto['attachment'],
+    attachment: RunCodeDto['attachment'],
   ): Promise<number | null> {
     if (!attachment) {
       return null;
@@ -563,7 +563,9 @@ export class ExecuteService {
     ];
 
     const distinctProblemIds = [
-      ...new Set(rawRecords.map((r) => r.problemId).filter(Boolean) as string[]),
+      ...new Set(
+        rawRecords.map((r) => r.problemId).filter(Boolean) as string[],
+      ),
     ];
 
     const userRows = await this.db
@@ -574,7 +576,7 @@ export class ExecuteService {
       })
       .from(users)
       .where(inArray(users.id, distinctUserIds));
-    
+
     const problemRows = await this.db
       .select({
         id: problems.id,
@@ -687,10 +689,9 @@ export class ExecuteService {
     };
   }
 
-   async stats(dto: StatsDto): Promise<StatResultDto> {
+  async stats(dto: StatsDto): Promise<StatResultDto> {
     const fromDate = dto.from ? new Date(dto.from) : null;
     const toDate = dto.to ? new Date(dto.to) : null;
-
 
     const runConditions = [
       dto.labId ? eq(runCollection.labId, dto.labId) : undefined,
@@ -705,7 +706,6 @@ export class ExecuteService {
       fromDate ? gte(submitCollection.createdAt, fromDate) : undefined,
       toDate ? lte(submitCollection.createdAt, toDate) : undefined,
     ].filter(Boolean) as ReturnType<typeof eq>[];
-
 
     const groupExpr = (
       collection: typeof runCollection | typeof submitCollection,
@@ -851,5 +851,5 @@ export class ExecuteService {
       collectionType: dto.collectionType ?? StatCollectionType.BOTH,
       data,
     };
-  } 
+  }
 }

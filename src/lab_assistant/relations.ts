@@ -1,7 +1,7 @@
-import { relations } from "drizzle-orm";
-import { labAssistants, labs } from "./tables";
-import { labAssignments } from "../problems/tables";
-import { submitCollection } from "../execute/tables";
+import { relations } from 'drizzle-orm';
+import { labAssistants, labs } from './tables';
+import { labAssignments } from '../problems/tables';
+import { submitCollection } from '../execute/tables';
 
 export const labAssistantsRelation = relations(labAssistants, ({ one }) => ({
   lab: one(labs, {

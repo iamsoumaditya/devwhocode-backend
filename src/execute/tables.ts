@@ -38,15 +38,20 @@ export const runCollection = pgTable('run_collections', {
   userId: uuid('user_id').references(() => users.id, {
     onDelete: 'cascade',
   }),
-  problemId: uuid('problem_id').notNull().notNull().references(() => problems.id, {
-    onDelete: 'cascade',
-  }),
+  problemId: uuid('problem_id')
+    .notNull()
+    .notNull()
+    .references(() => problems.id, {
+      onDelete: 'cascade',
+    }),
   runCount: integer('run_count').default(0).notNull(),
   status: statusType('status').default('EXECUTING').notNull(),
   result: resultType('result'),
   error: text('error'),
   executionTime: integer('execution_time'),
-  labId: integer('lab_id').references(() => labs.id, { onDelete: 'cascade' }).notNull(),
+  labId: integer('lab_id')
+    .references(() => labs.id, { onDelete: 'cascade' })
+    .notNull(),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });
@@ -63,9 +68,11 @@ export const submitCollection = pgTable('submit_collections', {
   userId: uuid('user_id').references(() => users.id, {
     onDelete: 'cascade',
   }),
-  problemId: uuid('problem_id').notNull().references(() => problems.id, {
-    onDelete: 'cascade',
-  }),
+  problemId: uuid('problem_id')
+    .notNull()
+    .references(() => problems.id, {
+      onDelete: 'cascade',
+    }),
   submitCount: integer('submit_count').default(0).notNull(),
   status: statusType('status').default('EXECUTING').notNull(),
   result: resultType('result'),
@@ -73,8 +80,9 @@ export const submitCollection = pgTable('submit_collections', {
   executionTime: integer('execution_time'),
   testcasesPassed: integer('testcases_passed'),
   totalTestcases: integer('total_testcases'),
-  labId: integer('lab_id').references(() => labs.id, { onDelete: 'cascade' }).notNull(),
+  labId: integer('lab_id')
+    .references(() => labs.id, { onDelete: 'cascade' })
+    .notNull(),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });
-

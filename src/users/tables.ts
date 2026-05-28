@@ -22,4 +22,3 @@ export const departments = pgTable('departments', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
 });
-

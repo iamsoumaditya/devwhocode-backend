@@ -1,6 +1,6 @@
-import { relations } from "drizzle-orm";
-import { departments, users } from "./tables";
-import { runCollection, submitCollection } from "../execute/tables";
+import { relations } from 'drizzle-orm';
+import { departments, users } from './tables';
+import { runCollection, submitCollection } from '../execute/tables';
 
 export const usersRelation = relations(users, ({ one, many }) => ({
   department: one(departments, {
