@@ -22,7 +22,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: (req: Request) => {
         const token: unknown =
-          req.cookies?.access_token || ExtractJwt.fromAuthHeaderAsBearerToken();
+          req.cookies?.access_token ||
+          ExtractJwt.fromAuthHeaderWithScheme('Bearer') ||
+          ExtractJwt.fromAuthHeaderWithScheme('');
         return typeof token === 'string' ? token : null;
       },
       ignoreExpiration: false,
