@@ -610,7 +610,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    return result;
+    return result[0];
   }
 
   async deleteStudent(dto: DeleteStudentDto): Promise<{ deleted: number }> {
