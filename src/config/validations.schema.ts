@@ -8,7 +8,7 @@ export const validationSchema = Joi.object({
   PORT: Joi.number().port().default(3000),
 
   DATABASE_URL: Joi.string().uri().required(),
-
+  CORS_HOSTS: Joi.string().required(),
   JWT_SECRET_KEY: Joi.string().required(),
   JWT_EXPIRES_IN: Joi.string().required(),
   JWT_REFRESH_EXPIRES_IN: Joi.string().required(),
