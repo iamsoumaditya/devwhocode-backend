@@ -23,9 +23,9 @@ import {
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class ExecuteController {
-  constructor(private readonly executeService: ExecuteService) {}
+  constructor(private readonly executeService: ExecuteService) { }
 
-  @Post('run')
+  @Post('execute/run')
   @HttpCode(HttpStatus.OK)
   async run(
     @Req() req: Request & { user: { id: string } },
@@ -38,7 +38,7 @@ export class ExecuteController {
     };
   }
 
-  @Post('submit')
+  @Post('execute/submit')
   @HttpCode(HttpStatus.OK)
   async submit(
     @Req() req: Request & { user: { id: string } },

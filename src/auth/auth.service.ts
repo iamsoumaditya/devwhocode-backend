@@ -391,6 +391,19 @@ export class AuthService {
       payload.sub,
       payload.role as 'student' | 'lab_assistant',
     );
+    //TODO: Check if refresh token is necessary as refresh token will only be valid for 3 hours
+    // const refresh_token = this.signRefreshToken(
+    //   payload.sub,
+    //   payload.role as 'student' | 'lab_assistant',
+    // );
+
+    res.cookie('access_token', access_token, {
+      httpOnly: true,
+      secure: this.config.get('NODE_ENV') === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+      path: '/',
+    });
 
     return { access_token };
   }
