@@ -46,7 +46,7 @@ export class AuthService {
     private readonly db: NodePgDatabase<typeof userSchema & typeof labSchema>,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
-  ) {}
+  ) { }
 
   private issueTokens(
     tokenPayload: { id: string; role: 'student' | 'lab_assistant' },
@@ -73,6 +73,13 @@ export class AuthService {
       sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/api/v1/auth/refresh',
+    });
+    res.cookie('access_token', access_token, {
+      httpOnly: true,
+      secure: this.config.get('NODE_ENV') === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+      path: '/',
     });
 
     return { access_token, user };

@@ -2,6 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Request } from 'express';
+
 
 export interface JwtPayload {
   sub: string;
@@ -18,7 +20,11 @@ export interface RequestUser {
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(config: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: (req: Request) => {
+        const token: unknown =
+          req.cookies?.access_token || ExtractJwt.fromAuthHeaderAsBearerToken();
+        return typeof token === 'string' ? token : null;
+      },
       ignoreExpiration: false,
       secretOrKey: config.getOrThrow<string>('JWT_SECRET_KEY'),
     });
