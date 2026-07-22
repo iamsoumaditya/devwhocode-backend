@@ -31,6 +31,9 @@ import {
 } from './dto';
 import { plainToInstance } from 'class-transformer';
 import { and, asc, eq, inArray } from 'drizzle-orm';
+import type { RequestUser } from '../common/strategies/jwt.strategy';
+import { ProblemDetailsWithTestcasesAndCodeDto } from './dto/problem.reponse.dto';
+import { runCollection,submitCollection } from '../execute/schema';
 
 @Injectable()
 export class ProblemsService {
@@ -90,7 +93,7 @@ export class ProblemsService {
     });
   }
 
-  async findOne(id: string): Promise<ProblemDetailsWithTestcasesDto> {
+  async findOne(id: string, user: RequestUser): Promise<ProblemDetailsWithTestcasesAndCodeDto> {
     const row = await this.db.query.problems.findFirst({
       where: eq(problemSchema.problems.id, id),
       with: {
@@ -106,8 +109,40 @@ export class ProblemsService {
 
     if (!row) throw new NotFoundException(`Problem ${id} not found`);
 
+    let savedCode: string | null = null;
+
+    const [submitRow] = await this.db
+      .select({ code: submitCollection.code })
+      .from(submitCollection)
+      .where(
+        and(
+          eq(submitCollection.userId, user.id),
+          eq(submitCollection.problemId, id),
+        ),
+      )
+      .limit(1);
+
+    if (submitRow) {
+      savedCode = submitRow.code;
+    } else {
+      const [runRow] = await this.db
+        .select({ code: runCollection.code })
+        .from(runCollection)
+        .where(
+          and(
+            eq(runCollection.userId, user.id),
+            eq(runCollection.problemId, id),
+          ),
+        )
+        .limit(1);
+
+      if (runRow) savedCode = runRow.code;
+    }
+
+
     const mapped = {
       ...row,
+      code: savedCode,
       problemDetails: row.problemDetails
         ? {
             ...row.problemDetails,
@@ -118,7 +153,7 @@ export class ProblemsService {
         : null,
     };
 
-    return plainToInstance(ProblemDetailsWithTestcasesDto, mapped, {
+    return plainToInstance(ProblemDetailsWithTestcasesAndCodeDto, mapped, {
       excludeExtraneousValues: true,
     });
   }

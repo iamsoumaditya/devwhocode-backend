@@ -30,6 +30,9 @@ import {
 } from './dto';
 import { AssistantGuard } from '../common/guards/assistant.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { RequestUser } from '../common/strategies/jwt.strategy';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { ProblemDetailsWithTestcasesAndCodeDto } from './dto/problem.reponse.dto';
 @Controller('problems')
 @UseGuards(JwtAuthGuard)
 export class ProblemsController {
@@ -67,8 +70,9 @@ export class ProblemsController {
   @ResponseMessage('Problem details fetched successfully')
   findOne(
     @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<ProblemDetailsWithTestcasesDto> {
-    return this.problemsService.findOne(id);
+    @CurrentUser() user: RequestUser,
+  ): Promise<ProblemDetailsWithTestcasesAndCodeDto> {
+    return this.problemsService.findOne(id,user);
   }
 
   @Patch('testcase/:testcaseId')

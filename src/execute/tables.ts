@@ -40,7 +40,6 @@ export const runCollection = pgTable('run_collections', {
   }),
   problemId: uuid('problem_id')
     .notNull()
-    .notNull()
     .references(() => problems.id, {
       onDelete: 'cascade',
     }),

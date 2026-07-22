@@ -6,6 +6,7 @@ import {
   IsString,
   Matches,
   Max,
+  MaxLength,
   Min,
   MinLength,
 } from 'class-validator';
@@ -32,6 +33,7 @@ export class RegisterStudentDto {
 
   @IsString()
   @MinLength(8, { message: 'Password must be at least 8 characters' })
+  @MaxLength(25, { message: 'Password must not exceed 25 characters' })
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
     message:
       'Password must contain at least one uppercase letter, one lowercase letter, and one number',

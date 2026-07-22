@@ -54,6 +54,10 @@ export class ProblemDetailsWithTestcasesDto extends ProblemWithDetailsResponseDt
   testcases: TestcaseResponseDto[];
 }
 
+export class ProblemDetailsWithTestcasesAndCodeDto extends ProblemWithDetailsResponseDto {
+  @Expose()
+  code: string | null;
+}
 export class ProblemToAssignmentResponseDto {
   @Expose() assignmentId: number;
   @Expose() problemId: string;
