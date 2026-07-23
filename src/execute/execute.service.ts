@@ -53,9 +53,9 @@ export class ExecuteService {
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<
       typeof excutorSchema &
-        typeof problemSchema &
-        typeof userSchema &
-        typeof labSchema
+      typeof problemSchema &
+      typeof userSchema &
+      typeof labSchema
     >,
     private readonly configService: ConfigService,
   ) {
@@ -178,9 +178,9 @@ export class ExecuteService {
       .where(
         publicOnly
           ? and(
-              eq(problemsTestcases.problemDetailsId, problemDetailsId),
-              eq(testcases.isPublic, true),
-            )
+            eq(problemsTestcases.problemDetailsId, problemDetailsId),
+            eq(testcases.isPublic, true),
+          )
           : eq(problemsTestcases.problemDetailsId, problemDetailsId),
       );
 
@@ -315,9 +315,9 @@ export class ExecuteService {
       code: dto.code,
       attachment: dto.attachment
         ? {
-            name: dto.attachment.name,
-            contents: dto.attachment.contents,
-          }
+          name: dto.attachment.name,
+          contents: dto.attachment.contents,
+        }
         : undefined,
       tests: testcaseList,
     };
@@ -337,8 +337,7 @@ export class ExecuteService {
         .where(eq(runCollection.id, runRecord.id));
       throw err;
     }
-
-    const avgTime = this.avgExecTime(execResponse.results);
+    const avgTime = this.avgExecTime(execResponse.results ?? []);
 
     await this.db
       .update(runCollection)
@@ -438,9 +437,9 @@ export class ExecuteService {
       code: dto.code,
       attachment: dto.attachment
         ? {
-            name: dto.attachment.name,
-            contents: dto.attachment.contents,
-          }
+          name: dto.attachment.name,
+          contents: dto.attachment.contents,
+        }
         : undefined,
       tests: testcaseList,
     };
@@ -669,7 +668,7 @@ export class ExecuteService {
         i > 0 &&
         entries[i].score === entries[i - 1].score &&
         entries[i].totalTestcasesPassed ===
-          entries[i - 1].totalTestcasesPassed &&
+        entries[i - 1].totalTestcasesPassed &&
         entries[i].totalAttempts === entries[i - 1].totalAttempts &&
         entries[i].avgExecutionTime === entries[i - 1].avgExecutionTime
       ) {
