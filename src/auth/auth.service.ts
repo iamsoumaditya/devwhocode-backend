@@ -116,6 +116,9 @@ export class AuthService {
   private clearRefreshCookie(res: Response): void {
     res.clearCookie('refresh_token', { path: '/api/v1/auth/refresh' });
   }
+  private clearAccessCookie(res: Response): void {
+    res.clearCookie('access_token', { path: '/' });
+  }
 
   private async isPasswordCorrect(
     password: string,
@@ -378,12 +381,14 @@ export class AuthService {
         secret: this.config.get<string>('JWT_SECRET_KEY'),
       });
     } catch {
+      this.clearAccessCookie(res);
       this.clearRefreshCookie(res);
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
     if (payload.type !== 'refresh') {
       this.clearRefreshCookie(res);
+      this.clearAccessCookie(res);
       throw new UnauthorizedException('Invalid token type');
     }
 
@@ -409,6 +414,7 @@ export class AuthService {
   }
 
   logout(res: Response): void {
+    this.clearAccessCookie(res);
     this.clearRefreshCookie(res);
   }
 
