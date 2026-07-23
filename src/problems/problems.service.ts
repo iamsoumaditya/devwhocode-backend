@@ -33,7 +33,7 @@ import { plainToInstance } from 'class-transformer';
 import { and, asc, eq, inArray } from 'drizzle-orm';
 import type { RequestUser } from '../common/strategies/jwt.strategy';
 import { ProblemDetailsWithTestcasesAndCodeDto } from './dto/problem.reponse.dto';
-import { runCollection,submitCollection } from '../execute/schema';
+import { runCollection, submitCollection } from '../execute/schema';
 
 @Injectable()
 export class ProblemsService {
@@ -42,7 +42,7 @@ export class ProblemsService {
     private readonly db: NodePgDatabase<
       typeof problemSchema & typeof labSchema
     >,
-  ) {}
+  ) { }
 
   async create(dto: CreateProblemDto): Promise<ProblemWithDetailsResponseDto> {
     return this.db.transaction(async (tx) => {
@@ -145,8 +145,8 @@ export class ProblemsService {
       code: savedCode,
       problemDetails: row.problemDetails
         ? {
-            ...row.problemDetails,
-          }
+          ...row.problemDetails,
+        }
         : null,
       testcases: row.problemDetails
         ? row.problemDetails.problemTestcases.map((pt) => pt.testcase)
