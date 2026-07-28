@@ -7,13 +7,13 @@ import {
   pgTable,
   pgEnum,
 } from 'drizzle-orm/pg-core';
-import { CODE_EXECUTION_STATUS, RESULT_OF_EXECUTION } from './constant';
+import { CODE_EXECUTION_STATUS } from './constant';
 import { labs } from '../lab_assistant/schema';
 import { problems } from '../problems/tables';
 import { users } from '../users/tables';
 
 export const statusType = pgEnum('status', CODE_EXECUTION_STATUS);
-export const resultType = pgEnum('result', RESULT_OF_EXECUTION);
+export const resultType = pgEnum('result', ['PASSED', 'FAILED']);
 
 export const languages = pgTable('languages', {
   id: serial('id').primaryKey(),

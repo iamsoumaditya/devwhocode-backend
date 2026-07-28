@@ -1,5 +1,12 @@
 export const CODE_EXECUTION_STATUS = ['EXECUTING', 'COMPLETED'] as const;
-export const RESULT_OF_EXECUTION = ['PASSED', 'FAILED'] as const;
+export const RESULT_OF_EXECUTION = [
+  'SUCCESS',
+  'FAILED',
+  'TIME_LIMIT_EXCEEDED',
+  'RESOURCE_LIMIT_EXCEEDED',
+  'RUNTIME_ERROR',
+  'INTERNAL_ERROR',
+] as const;
 
 export const SCORE_WEIGHTS = {
   ACCEPTED_BONUS: 100,

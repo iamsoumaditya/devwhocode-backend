@@ -53,9 +53,9 @@ export class ExecuteService {
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<
       typeof excutorSchema &
-      typeof problemSchema &
-      typeof userSchema &
-      typeof labSchema
+        typeof problemSchema &
+        typeof userSchema &
+        typeof labSchema
     >,
     private readonly configService: ConfigService,
   ) {
@@ -90,13 +90,7 @@ export class ExecuteService {
       attemptCount: number;
     },
   ): number {
-    const {
-      result,
-      executionTime,
-      testcasesPassed,
-      totalTestcases,
-      attemptCount,
-    } = record;
+    const { result, executionTime, testcasesPassed, attemptCount } = record;
 
     const isAccepted = result === 'PASSED';
     const execMs = executionTime ?? SCORE_WEIGHTS.TIME_BONUS_CAP;
@@ -178,9 +172,9 @@ export class ExecuteService {
       .where(
         publicOnly
           ? and(
-            eq(problemsTestcases.problemDetailsId, problemDetailsId),
-            eq(testcases.isPublic, true),
-          )
+              eq(problemsTestcases.problemDetailsId, problemDetailsId),
+              eq(testcases.isPublic, true),
+            )
           : eq(problemsTestcases.problemDetailsId, problemDetailsId),
       );
 
@@ -315,9 +309,9 @@ export class ExecuteService {
       code: dto.code,
       attachment: dto.attachment
         ? {
-          name: dto.attachment.name,
-          contents: dto.attachment.contents,
-        }
+            name: dto.attachment.name,
+            contents: dto.attachment.contents,
+          }
         : undefined,
       tests: testcaseList,
     };
@@ -343,7 +337,7 @@ export class ExecuteService {
       .update(runCollection)
       .set({
         status: 'COMPLETED',
-        result: execResponse.status as ResultOfExecution,
+        result: execResponse.status != 'SUCCESS' ? 'FAILED' : 'PASSED',
         error: execResponse.error ?? null,
         executionTime: avgTime,
         updatedAt: new Date(),
@@ -352,7 +346,7 @@ export class ExecuteService {
 
     return {
       problemId: dto.problemId,
-      result: execResponse.status as ResultOfExecution,
+      result: execResponse.status,
       executionTime: avgTime,
       error: execResponse.error ?? null,
       results: execResponse.results,
@@ -437,9 +431,9 @@ export class ExecuteService {
       code: dto.code,
       attachment: dto.attachment
         ? {
-          name: dto.attachment.name,
-          contents: dto.attachment.contents,
-        }
+            name: dto.attachment.name,
+            contents: dto.attachment.contents,
+          }
         : undefined,
       tests: testcaseList,
     };
@@ -461,7 +455,7 @@ export class ExecuteService {
     }
 
     const passedCount = execResponse.results.filter(
-      (r) => r.status.current_status === 'PASSED',
+      (r) => r.status.current_status === 'SUCCESS',
     ).length;
 
     const avgTime = this.avgExecTime(execResponse.results);
@@ -470,7 +464,7 @@ export class ExecuteService {
       .update(submitCollection)
       .set({
         status: 'COMPLETED',
-        result: execResponse.status as ResultOfExecution,
+        result: execResponse.status != 'SUCCESS' ? 'FAILED' : 'PASSED',
         error: execResponse.error ?? null,
         executionTime: avgTime,
         testcasesPassed: passedCount,
@@ -668,7 +662,7 @@ export class ExecuteService {
         i > 0 &&
         entries[i].score === entries[i - 1].score &&
         entries[i].totalTestcasesPassed ===
-        entries[i - 1].totalTestcasesPassed &&
+          entries[i - 1].totalTestcasesPassed &&
         entries[i].totalAttempts === entries[i - 1].totalAttempts &&
         entries[i].avgExecutionTime === entries[i - 1].avgExecutionTime
       ) {

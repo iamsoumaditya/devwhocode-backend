@@ -19,7 +19,13 @@ export interface ExecutorRequest {
   tests: ExecutorTestcase[];
 }
 
-export type ExecutorStatus = 'PASSED' | 'FAILED';
+export type ExecutorStatus =
+  | 'SUCCESS'
+  | 'FAILED'
+  | 'TIME_LIMIT_EXCEEDED'
+  | 'RESOURCE_LIMIT_EXCEEDED'
+  | 'RUNTIME_ERROR'
+  | 'INTERNAL_ERROR';
 export type ResultOfExecution = (typeof RESULT_OF_EXECUTION)[number];
 
 export interface ExecutorTestResult {
