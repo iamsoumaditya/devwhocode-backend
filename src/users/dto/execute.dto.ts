@@ -1,9 +1,8 @@
 import { IsOptional, IsIn, IsInt, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-  CODE_EXECUTION_STATUS,
-  RESULT_OF_EXECUTION,
-} from '../../execute/constant';
+import { CODE_EXECUTION_STATUS } from '../../execute/constant';
+
+const RESULT_OF_EXECUTION = ['PASSED', 'FAILED'];
 
 export class UserRunsDto {
   @IsOptional()

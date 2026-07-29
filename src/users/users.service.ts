@@ -31,7 +31,7 @@ export class UsersService {
   constructor(
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<typeof userSchema>,
-  ) {}
+  ) { }
 
   private async assertUserExists(userId: string): Promise<void> {
     const [user] = await this.db
