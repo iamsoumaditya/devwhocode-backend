@@ -152,10 +152,10 @@ export class ProblemsService {
         ? row.problemDetails.problemTestcases.map((pt) => pt.testcase)
         : null,
     };
-
-    return plainToInstance(ProblemDetailsWithTestcasesAndCodeDto, mapped, {
+    const ret = plainToInstance(ProblemDetailsWithTestcasesAndCodeDto, mapped, {
       excludeExtraneousValues: true,
     });
+    return ret;
   }
 
   async update(
